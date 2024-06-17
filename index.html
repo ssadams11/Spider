@@ -1,1 +1,73 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Spider Simulation</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Basic setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // Spider parts
+        const spiderBodyMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        const bodyGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const body = new THREE.Mesh(bodyGeometry, spiderBodyMaterial);
+        scene.add(body);
+
+        const legMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+        const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 2, 32);
+
+        const legs = [];
+        for (let i = 0; i < 8; i++) {
+            const leg = new THREE.Mesh(legGeometry, legMaterial);
+            legs.push(leg);
+            scene.add(leg);
+        }
+
+        body.position.set(0, 0, -5);
+        legs.forEach((leg, i) => {
+            leg.position.set(
+                Math.cos((i * Math.PI) / 4) * 1.5,
+                Math.sin((i * Math.PI) / 4) * 1.5,
+                -5
+            );
+            leg.rotation.z = (i * Math.PI) / 4;
+        });
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Procedural leg movement
+            legs.forEach((leg, i) => {
+                leg.rotation.z += 0.01 * ((i % 2 === 0) ? 1 : -1);
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
